@@ -4,7 +4,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#define int long long
 #define ll long long
 #define fixed(n) fixed << setprecision(n)
 #define all(v) v.begin(), v.end()
@@ -18,17 +17,16 @@ using namespace std;
 #define pi acos(-1.0)
 void debug() { cout << "[DEBUG]" << nl; }
 
+// column list
 struct ColumnNode
 {
-    int val;
-    int index;
-    ColumnNode *next;
-    ColumnNode *prv;
+    int val, index;
+    ColumnNode *next, *prv;
 
-    ColumnNode(int item, int index)
+    ColumnNode(int item, int idx)
     {
-        this->val = item;
-        this->index = index;
+        val = item;
+        index = idx;
         next = prv = nullptr;
     }
 };
@@ -36,42 +34,47 @@ struct ColumnNode
 class Column
 {
 private:
-    ColumnNode *head;
-    ColumnNode *tail;
-    int len;
-    int columnSize;
+    ColumnNode *head, *tail;
+    int len, columnSize;
 
-    void link(ColumnNode *f, ColumnNode *s)
+    void link(ColumnNode *a, ColumnNode *b)
     {
-        if (f)
-            f->next = s;
-        if (s)
-            s->prv = f;
+        if (a)
+            a->next = b;
+        if (b)
+            b->prv = a;
     }
 
 public:
-    Column(int n) : head(nullptr), tail(nullptr), len(0), columnSize(n) {}
+    Column(int n)
+    {
+        head = tail = nullptr;
+        len = 0;
+        columnSize = n;
+    }
+
     ~Column()
     {
         ColumnNode *cur = head;
         while (cur)
         {
-            ColumnNode *nxt = head->next;
+            ColumnNode *nxt = cur->next;
             delete cur;
             cur = nxt;
         }
     }
 
-    // -- Main Functions -- //
     bool isempty() { return head == nullptr; }
 
     int get(int idx)
     {
         if (idx < 0 || idx >= columnSize)
             return 0;
+
         ColumnNode *cur = head;
         while (cur && cur->index < idx)
             cur = cur->next;
+
         if (cur && cur->index == idx)
             return cur->val;
 
@@ -85,11 +88,10 @@ public:
 
         if (val == 0)
         {
-            // erase(idx);
+            erase(idx);
             return;
         }
 
-        // is the matrix with no columns or idx of column is smaller than the first one
         if (isempty())
         {
             head = tail = new ColumnNode(val, idx);
@@ -99,19 +101,22 @@ public:
 
         if (idx < head->index)
         {
-            ColumnNode *col = new ColumnNode(val, idx);
-            link(col, head);
-            head = col;
+            ColumnNode *node = new ColumnNode(val, idx);
+            link(node, head);
+            head = node;
             len++;
+            return;
         }
 
-        // update node
         ColumnNode *cur = head;
         while (cur->next && cur->next->index < idx)
             cur = cur->next;
 
         if (cur->index == idx)
+        {
             cur->val = val;
+            return;
+        }
 
         if (cur->next && cur->next->index == idx)
         {
@@ -119,12 +124,13 @@ public:
             return;
         }
 
-        // new column
         ColumnNode *node = new ColumnNode(val, idx);
         node->next = cur->next;
         node->prv = cur;
+
         if (cur->next)
             cur->next->prv = node;
+
         cur->next = node;
 
         if (cur == tail)
@@ -137,6 +143,7 @@ public:
     {
         if (isempty())
             return;
+
         ColumnNode *cur = head;
         while (cur && cur->index < idx)
             cur = cur->next;
@@ -151,43 +158,144 @@ public:
                 head->prv = nullptr;
             else
                 tail = nullptr;
-
-            delete cur;
-            len--;
-            return;
+        }
+        else
+        {
+            cur->prv->next = cur->next;
+            if (cur->next)
+                cur->next->prv = cur->prv;
+            if (cur == tail)
+                tail = cur->prv;
         }
 
-        if (cur->prv)
-            cur->prv->next = cur->next;
-        if (cur->next)
-            cur->next->prv = cur->prv;
-        if (cur == tail)
-            tail = cur->prv;
-
-        len--;
         delete cur;
+        len--;
     }
 
     void printColumn()
     {
         ColumnNode *cur = head;
-        int LastIdx = -1;
+        int last = -1;
+
         while (cur)
         {
-            for (int i = LastIdx + 1; i < cur->index; i++)
+            for (int i = last + 1; i < cur->index; i++)
                 cout << 0 << " ";
+
             cout << cur->val << " ";
-            LastIdx = cur->index;
+            last = cur->index;
             cur = cur->next;
         }
 
-        for (int i = LastIdx + 1; i < columnSize; i++)
+        for (int i = last + 1; i < columnSize; i++)
             cout << 0 << " ";
+
         cout << nl;
     }
 };
 
-signed main()
+// row list
+struct rowNode
+{
+    Column list;
+    int rowIndex;
+    rowNode *next, *prv;
+
+    rowNode(int idx, int colSize) : list(colSize)
+    {
+        rowIndex = idx;
+        next = prv = nullptr;
+    }
+};
+
+class sparseMatrix
+{
+private:
+    rowNode *head, *tail;
+    int rowCnt, colCnt;
+
+    bool valid(int r, int c)
+    {
+        return r >= 0 && r < rowCnt && c >= 0 && c < colCnt;
+    }
+
+public:
+    sparseMatrix(int rows, int cols)
+    {
+        head = tail = nullptr;
+        rowCnt = rows;
+        colCnt = cols;
+
+        for (int i = 0; i < rowCnt; i++)
+            appendRow(i);
+    }
+
+    ~sparseMatrix()
+    {
+        rowNode *cur = head;
+        while (cur)
+        {
+            rowNode *nxt = cur->next;
+            delete cur;
+            cur = nxt;
+        }
+    }
+
+    void appendRow(int rowIdx)
+    {
+        rowNode *node = new rowNode(rowIdx, colCnt);
+
+        if (!head)
+        {
+            head = tail = node;
+        }
+        else
+        {
+            tail->next = node;
+            node->prv = tail;
+            tail = node;
+        }
+    }
+
+    rowNode *getRow(int idx)
+    {
+        rowNode *cur = head;
+        while (cur && cur->rowIndex != idx)
+            cur = cur->next;
+
+        return cur;
+    }
+
+    void set(int r, int c, int val)
+    {
+        if (!valid(r, c))
+            return;
+
+        rowNode *row = getRow(r);
+        row->list.set(c, val);
+    }
+
+    int get(int r, int c)
+    {
+        if (!valid(r, c))
+            return 0;
+
+        rowNode *row = getRow(r);
+        return row->list.get(c);
+    }
+
+    void printMatrix()
+    {
+        rowNode *cur = head;
+        while (cur)
+        {
+            cur->list.printColumn();
+            cur = cur->next;
+        }
+    }
+};
+
+int main()
 {
 
     return 0;
