@@ -1,6 +1,8 @@
 # Sparse Containers — Linked‑List Sparse Vector & Sparse Matrix
 
 [![Language: C++](https://img.shields.io/badge/language-C%2B%2B-lightgrey.svg)]()
+<img width="1568" height="732" alt="image" src="https://github.com/user-attachments/assets/733c6626-55b0-4c11-8ec9-68014245b10c" />
+
 
 A tiny, well-documented C++ library for sparse 1D arrays (SparseVector) and sparse matrices (SparseMatrix) using per-row linked lists. Designed for clarity, teaching, and memory‑constrained prototypes.
 
@@ -55,32 +57,6 @@ SparseMatrix complexity summary
 | memory                    | O(nnz) nodes + per-row heads              |
 
 
-
-Testing & validation strategy
-- Unit tests:
-  - set/get/erase correctness and edge cases
-  - zero-removal (setting to zero removes nodes)
-  - length / bounds checks
-- Conversion tests:
-  - dense ↔ sparse roundtrip (vectors and matrices)
-- Arithmetic tests:
-  - add, dot, matrix×vector compared with dense baseline
-  - merge edge cases (overlapping, disjoint, identical indices)
-- Stress tests:
-  - Randomized insert/delete with deterministic seeds validated against dense impl
-- Memory & correctness in CI:
-  - AddressSanitizer / Valgrind runs
-  - Deterministic test seeds
-- Suggested frameworks:
-  - GoogleTest or Catch2
-
-
-
-Roadmap (prioritized)
-1. v0.1 — Minimal, tested API: SparseVector and SparseMatrix (sorted lists), basic arithmetic, unit tests, CI.
-2. v0.2 — Serialization (JSON row lists), to_dense/from_dense helpers, expanded tests.
-3. v0.3 — Conversion utilities to/from CSR/CSC, per-row hash option, hybrid row strategy.
-4. v1.0 — Performance tuning, optional Python bindings, documentation site.
 
 
 
