@@ -1,7 +1,7 @@
 # Sparse Containers — Linked‑List Sparse Vector & Sparse Matrix
 
 [![Language: C++](https://img.shields.io/badge/language-C%2B%2B-lightgrey.svg)]()
-<img width="1568" height="732" alt="image" src="https://github.com/user-attachments/assets/733c6626-55b0-4c11-8ec9-68014245b10c" />
+<img width="4584" height="1684" alt="ArrayLinkedList" src="https://github.com/user-attachments/assets/d46e3589-8e14-4077-85d6-3ae6398db926" />
 
 
 A tiny, well-documented C++ library for sparse 1D arrays (SparseVector) and sparse matrices (SparseMatrix) using per-row linked lists. Designed for clarity, teaching, and memory‑constrained prototypes.
